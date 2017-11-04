@@ -5,16 +5,13 @@
 android:id="@+id/activity_main"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:paddingBottom="16dp"
-android:paddingLeft="16dp"
-android:paddingRight="16dp"
 android:paddingTop="16dp"
 android:background="#EEEEEE"
 tools:context="com.example.suyog.codeit.ChatActivity">
 
 
 <ListView
-    android:layout_above="@+id/fab"
+    android:layout_above="@+id/chat"
     android:layout_alignParentTop="true"
     android:layout_alignParentStart="true"
     android:id="@+id/list_of_message"
@@ -26,28 +23,39 @@ tools:context="com.example.suyog.codeit.ChatActivity">
     android:layout_width="match_parent"
     android:layout_height="match_parent"></ListView>
 
-<EditText
-    android:height="40dp"
-    android:layout_toLeftOf="@+id/fab"
-    android:layout_alignParentBottom="true"
-    android:id="@+id/user_message"
-    android:paddingLeft="7dp"
-    android:hint="Enter your message"
-    android:background="@drawable/background_login"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginLeft="10dp"
-        android:background="@color/colorPrimary"
-        android:clickable="true"
-        app:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_menu_send" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#FFFFFF"
+        android:orientation="horizontal"
+        android:id="@+id/chat"
+        android:layout_alignParentBottom="true">
+
+        <ImageButton
+            android:id="@+id/micButton"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_mic_none_black_24dp"
+            android:contentDescription="Add Attatchment" />
+
+        <EditText
+            android:id="@+id/user_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Enter Your Text"/>
+
+        <ImageButton
+            android:id="@+id/fab"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_send_black_24dp"
+            android:contentDescription="send" />
+
+    </LinearLayout>
+
 </RelativeLayout>
 

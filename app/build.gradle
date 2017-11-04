@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+
+    }
 }
 
 dependencies {
@@ -32,7 +36,7 @@ dependencies {
     compile 'com.github.lguipeng:BubbleView:1.0.1'
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'ai.api:sdk:2.0.7@aar'
-    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.google.code.gson:gson:2.7'
     compile 'ai.api:libai:1.4.8'
     compile 'ai.api:libai-base:1.6.12'
 
