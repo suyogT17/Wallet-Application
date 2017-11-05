@@ -20,6 +20,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterFragment extends Fragment {
 
@@ -89,6 +91,11 @@ public class RegisterFragment extends Fragment {
                                         if(!AddUser.addUser(Database.connect(),name,email,phone,country,"sbi","12345")){
                                             mProgressDialog.dismiss();
                                             Toast.makeText(getActivity(),"Registration failed",Toast.LENGTH_LONG);
+                                        }
+                                        else{
+                                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                            DatabaseReference myRef = database.getReference().child("users");
+                                            myRef.setValue(email);
                                         }
 
 

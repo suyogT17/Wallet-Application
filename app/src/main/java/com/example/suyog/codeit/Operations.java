@@ -46,7 +46,7 @@ public class Operations {
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
             return message;
         }
-        else if(message.contains("transaction") | message.contains("transactions")) {
+        else if(message.contains("transaction")) {
             String date=null;
 
             HashMap<String, JsonElement> resultParameters = result.getParameters();
@@ -55,7 +55,7 @@ public class Operations {
                 JsonElement value = entry.getValue();
                 if (key.equals("date")) {
                     date=value.toString(); //you will get either date or startdate/enddate format according to that find transactions
-                    date=convertToString(date);                              //and set them in dummy transactions
+                    date=convertToString(date);//and set them in dummy transactions
                 }
                 String data="";
                 try {
@@ -72,7 +72,33 @@ public class Operations {
                 return message;
             }
         }
+        else if(message.contains("transaction history")){
+            String date=null;
+            String data=null;
 
+            HashMap<String, JsonElement> resultParameters = result.getParameters();
+            for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
+                String key = entry.getKey();
+                JsonElement value = entry.getValue();
+                if (key.equals("period")) {
+                    date=value.toString(); //you will get either date or startdate/enddate format according to that find transactions
+                    date=convertToString(date);
+                    String dates[]=date.split("/"); //and set them in dummy transactions
+                    String start=dates[0];//start date
+                    String end =dates[1];//end date
+                    Log.i("codeit:",start+" "+end);
+                    data=""+start+" "+end;//for testing
+                }
+
+                ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                message = message + "\n" + data;
+                return message;
+            }
+
+
+
+
+        }
         else if(message.contains("transfer") | message.contains("pay")){
 
             int total=5000;
@@ -140,6 +166,26 @@ public class Operations {
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
             return message;
 
+        }
+
+        else if(message.contains("credited") | message.contains("deposited")){
+
+            String amtDeposit = null;
+            String totalWalletStat=null;//store total + amtDeposit
+            HashMap<String, JsonElement> resultParameters = result.getParameters();
+            for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
+                String key = entry.getKey();
+                JsonElement value = entry.getValue();
+                if(key.equals("money")){
+
+                    amtDeposit=value.toString();//fname of user
+                    convertToString(amtDeposit);//amoutnwant to deposit
+                }
+
+            }
+            message=message+totalWalletStat;
+            ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+            return message;
         }
         else{
 
