@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingLeft="24dp"
     android:paddingRight="24dp"
-    android:paddingTop="18dp"
+    android:paddingTop="0dp"
     android:paddingBottom="18dp"
     android:background="#EEEEEE"
     >
@@ -125,6 +125,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#004D40"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/accno"
+                android:hint="Account No."
+                android:ems="10"
+                android:background="@android:color/transparent"
+                android:drawablePadding="12dp"
+                android:padding="8dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:drawableLeft="@drawable/ic_location_on_black_24dp"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#004D40"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/bank"
+                android:hint="Bank Name"
+                android:ems="10"
+                android:background="@android:color/transparent"
+                android:drawablePadding="12dp"
+                android:padding="8dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:drawableLeft="@drawable/ic_location_on_black_24dp"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#004D40"/>
 
 
 
@@ -132,7 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#00E676"
-                android:id="@+id/registerbtn"
+                android:id="@+id/bname"
                 android:text="SIGN UP"
                 android:textColor="#FFFFFF"
                 android:textAllCaps="false"
