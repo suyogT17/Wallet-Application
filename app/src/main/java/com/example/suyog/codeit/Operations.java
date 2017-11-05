@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonElement;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,12 +21,14 @@ import static java.lang.String.valueOf;
 
 public class Operations {
 
-
+    final static FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    final static String email = mAuth.getCurrentUser().getEmail();
     public static String doOperations(ai.api.model.Result result) {
         String message = result.getFulfillment().getSpeech().trim();
         if(message.contains("balance")){
+            Connection con = Database.connect();
+            String balance = WalletOperation.getBalance(con,email);
             String amount=null;
-            int total=5000;
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
@@ -34,8 +38,8 @@ public class Operations {
                 }
 
             }
-            //convertToString(amount);
-            message=message.replace(amount,""+total);//get the balance into total from db
+
+            message=message.replace(amount,balance);//get the balance into total from db
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
             return message;
         }
