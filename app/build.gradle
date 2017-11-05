@@ -39,8 +39,10 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'ai.api:libai:1.4.8'
     compile 'ai.api:libai-base:1.6.12'
-
+    annotationProcessor 'org.apache.logging.log4j:log4j-core:2.2'
     compile 'commons-io:commons-io:2.4'
+    //compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.6'
+    implementation project(':mysql-connector-java-5.1.38')
 }
 
 
