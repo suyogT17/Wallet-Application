@@ -41,6 +41,8 @@ dependencies {
     compile 'ai.api:libai-base:1.6.12'
 
     compile 'commons-io:commons-io:2.4'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+
 }
 
 
