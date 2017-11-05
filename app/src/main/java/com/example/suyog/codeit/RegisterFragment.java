@@ -63,7 +63,7 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                String email=mRegisterEmail.getText().toString().trim();
+                final String email=mRegisterEmail.getText().toString().trim();
                 String pass=mRegisterPassword.getText().toString().trim();
                 final String name=mRegisterName.getText().toString().trim();
                 final String phone=mRegisterPhoneno.getText().toString().trim();
@@ -85,6 +85,11 @@ public class RegisterFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
+
+                                        if(!AddUser.addUser(Database.connect(),name,email,phone,country,"sbi","12345")){
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(getActivity(),"Registration failed",Toast.LENGTH_LONG);
+                                        }
 
 
                                     Intent intent=new Intent(getActivity(),ChatActivity.class);

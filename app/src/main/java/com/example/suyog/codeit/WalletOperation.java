@@ -31,7 +31,8 @@ public class WalletOperation {
         ResultSet rs = null;
         String db = "heroku_5d7c12607dfcfbb";
         try{
-            query = con.prepareStatement("Select * from "+db+".transaction where CAST(tdate as DATE) = "+date);
+            query = con.prepareStatement("Select * from "+db+".transaction where DATE(tdate) = '"+date+"'");
+            Log.i("query",query.toString());
             rs = query.executeQuery();
         }
         catch(SQLException sqle){
