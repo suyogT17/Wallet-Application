@@ -42,7 +42,7 @@ dependencies {
     annotationProcessor 'org.apache.logging.log4j:log4j-core:2.2'
     compile 'commons-io:commons-io:2.4'
     //compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.6'
-    implementation project(':mysql-connector-java-5.1.38')
+    implementation project(':mysql-connector-java-3.0.17-ga-bin')
 }
 
 
