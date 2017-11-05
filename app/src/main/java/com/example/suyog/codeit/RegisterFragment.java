@@ -85,6 +85,8 @@ public class RegisterFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
+
+
                                     Intent intent=new Intent(getActivity(),ChatActivity.class);
                                     getActivity().startActivity(intent);
                                     getActivity().finish();

@@ -1,5 +1,6 @@
 package com.example.suyog.codeit;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.speech.RecognitionListener;
@@ -18,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
@@ -39,7 +41,7 @@ import ai.api.model.Result;
 import ai.api.model.Status;
 import ai.api.ui.AIButton;
 
-public class ChatActivity extends AppCompatActivity implements AIListener {
+public class ChatActivity extends AppCompatActivity  {
 
     ListView mListView;
     EditText mEditText;
@@ -62,7 +64,7 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
         mListView = (ListView)findViewById(R.id.list_of_message);
         mEditText = (EditText)findViewById(R.id.user_message);
         mSendbtn = (ImageButton)findViewById(R.id.fab);
-
+        showWelcomeMessage();
 
         final AIConfiguration config = new AIConfiguration("d402c697427b47769a6568402acf5b46",
                 AIConfiguration.SupportedLanguages.English,
@@ -79,80 +81,24 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
         });
 
 
-        mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-
-
-
-
-
-        mSpeechRecognizer.setRecognitionListener(new RecognitionListener() {
-
-
-                                                     @Override
-                                                     public void onReadyForSpeech(Bundle bundle) {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onBeginningOfSpeech() {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onRmsChanged(float v) {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onBufferReceived(byte[] bytes) {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onEndOfSpeech() {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onError(int i) {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onResults(Bundle bundle) {
-                                                         String text = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0);
-                                                         ChatModel model1 = new ChatModel(text,true); // user send message
-                                                         list_chat.add(model1);
-                                                         CustomAdapter adapter = new CustomAdapter(list_chat,getApplicationContext());
-                                                         mListView.setAdapter(adapter);
-
-                                                     }
-
-                                                     @Override
-                                                     public void onPartialResults(Bundle bundle) {
-
-                                                     }
-
-                                                     @Override
-                                                     public void onEvent(int i, Bundle bundle) {
-
-                                                     }
-                                                 });
-
-
-
-
         mRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
-                        getApplicationContext().getPackageName());
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,0);
-                mSpeechRecognizer.startListening(intent);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.getDefault());
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"say samething");
+                /*intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
+                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,0);*/
+                try {
+                    startActivityForResult(intent, 100);
+                }
+                catch(ActivityNotFoundException e){
+                    Toast.makeText(ChatActivity.this,"Sorry! your device doesn't support speech language!",Toast.LENGTH_LONG).show();
+                }
+//
+//                mSpeechRecognizer.startListening(intent);
                 Log.d(TAG,"speech start");
             }
         });
@@ -166,7 +112,9 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
                 }
                 else {
                     ChatModel model1 = new ChatModel(text, true); // user send message
-                    list_chat.add(model1);
+
+                        list_chat.add(model1);
+
                     CustomAdapter adapter = new CustomAdapter(list_chat, getApplicationContext());
                     mListView.setAdapter(adapter);
                     //remove user message
@@ -175,6 +123,22 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 100 && resultCode==RESULT_OK && !(data==null)){
+            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            ChatModel model1 = new ChatModel(result.get(0),true); // user send message
+
+                list_chat.add(model1);
+
+            CustomAdapter adapter = new CustomAdapter(list_chat,getApplicationContext());
+            mListView.setAdapter(adapter);
+            responseFormAssistant(result.get(0));
+
+        }
     }
 
     void responseFormAssistant(String message){
@@ -195,14 +159,14 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
             @Override
             protected void onPostExecute(AIResponse aiResponse) {
                 if (aiResponse != null) {
-
-
                     Result result = aiResponse.getResult();
                     //String message = result.getFulfillment().getSpeech().trim();
                     String message=Operations.doOperations(result);
                     //ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
                     ChatModel model1 = new ChatModel(message, false); // user send message
+
                     list_chat.add(model1);
+
                     CustomAdapter customAdapter=new CustomAdapter(list_chat,getApplicationContext());
                     mListView.setAdapter(customAdapter);
 
@@ -215,35 +179,18 @@ public class ChatActivity extends AppCompatActivity implements AIListener {
     }
 
 
-    @Override
-    public void onResult(AIResponse result) {
-        String userMessage = result.getResult().getResolvedQuery();
-        mEditText.setText(userMessage);
-    }
+    void showWelcomeMessage(){
+        FirebaseAuth auth=FirebaseAuth.getInstance();
+        String welcomeText="Hii "+auth.getCurrentUser()+" i am your wallet Assistant \n I can do following things for you \n show balance " +
+                "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
+        ChatModel model1 = new ChatModel(welcomeText, false); // user send message
 
-    @Override
-    public void onError(AIError error) {
+            list_chat.add(model1);
 
-    }
-
-    @Override
-    public void onAudioLevel(float level) {
+        CustomAdapter adapter = new CustomAdapter(list_chat, getApplicationContext());
+        mListView.setAdapter(adapter);
 
     }
 
-    @Override
-    public void onListeningStarted() {
-
-    }
-
-    @Override
-    public void onListeningCanceled() {
-
-    }
-
-    @Override
-    public void onListeningFinished() {
-
-    }
 }
 

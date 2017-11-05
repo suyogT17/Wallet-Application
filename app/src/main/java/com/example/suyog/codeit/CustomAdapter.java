@@ -1,6 +1,7 @@
 package com.example.suyog.codeit;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,14 +45,21 @@ public class CustomAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
+
         if(view == null)
         {
             if(list_chat_models.get(position).isSend)
                 view = layoutInflater.inflate(R.layout.chat_send,null);
+
             else
                 view = layoutInflater.inflate(R.layout.chat_rcv,null);
 
             BubbleTextView text_message = (BubbleTextView)view.findViewById(R.id.text_message);
+            String s="";
+            for(ChatModel cm:list_chat_models){
+                s=s+","+cm.getMessage()+"\n";
+            }
+            Log.i("codeit:",s);
             text_message.setText(list_chat_models.get(position).message);
 
         }
