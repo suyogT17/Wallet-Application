@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonElement;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,13 +41,14 @@ public class Operations {
 
             }
 
-            message=message.replace(amount,balance);//get the balance into total from db
+            //message=message.replace(amount,balance);//get the balance into total from db
+            message = message+balance;
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
             return message;
         }
         else if(message.contains("transaction") | message.contains("transactions")) {
             String date=null;
-            String dummyTransactions = "khdskdskjdsk\nksjkdjd\nksjdkdjsddksj\nksjddsjdk";
+
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
@@ -54,10 +57,18 @@ public class Operations {
                     date=value.toString(); //you will get either date or startdate/enddate format according to that find transactions
                     date=convertToString(date);                              //and set them in dummy transactions
                 }
-
-
+                String data="";
+                try {
+                    ResultSet rs = WalletOperation.transactionByDate(Database.connect(), date);
+                    while (rs.next()) {
+                        data = data + rs.getString("sender_id") + " " + rs.getString("reciever_id") + "\n";
+                    }
+                }
+                catch(SQLException sqle){
+                    Log.e("DB error",sqle.toString());
+                }
                 ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-                message = message + "\n" + dummyTransactions;
+                message = message + "\n" + data;
                 return message;
             }
         }
