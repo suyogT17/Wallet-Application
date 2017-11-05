@@ -5,6 +5,6 @@
         android:id="@+id/logout"
         android:orderInCategory="100"
         android:title="log out"
-        android:icon="@drawable/ic_menu_send"
+        android:icon="@drawable/logout"
         app:showAsAction="ifRoom" />
 </menu>

@@ -216,7 +216,7 @@ public class ChatActivity extends AppCompatActivity  {
 
     void showWelcomeMessage(){
         FirebaseAuth auth=FirebaseAuth.getInstance();
-        String welcomeText="Hii "+auth.getCurrentUser()+" i am your wallet Assistant \n I can do following things for you \n show balance " +
+        String welcomeText="Hii,"+" i am your wallet Assistant \n I can do following things for you \n show balance " +
                 "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
         ChatModel model1 = new ChatModel(welcomeText, false); // user send message
 

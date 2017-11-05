@@ -16,7 +16,7 @@ import java.sql.Connection;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static int SPLASH_TIME=15000;
+    public static int SPLASH_TIME=4000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

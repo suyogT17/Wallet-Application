@@ -2,10 +2,15 @@ package com.example.suyog.codeit;
 
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.JsonElement;
+
+import org.w3c.dom.Text;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -147,19 +152,17 @@ public class Operations {
 
         }
         else if(message.contains("add")){
-            String fname,lname;
+            String email=null;
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
-                if(key.equals("firstname")){
+                if(key.equals("email")){
 
-                    fname=value.toString();//fname of user
+                    email=value.toString();//fname of user
+                    email=convertToString(email);
+                }
 
-                }
-                if(key.equals("lname")){
-                    lname=value.toString();//lname of user
-                }
 
             }
 

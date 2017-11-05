@@ -92,11 +92,7 @@ public class RegisterFragment extends Fragment {
                                             mProgressDialog.dismiss();
                                             Toast.makeText(getActivity(),"Registration failed",Toast.LENGTH_LONG);
                                         }
-                                        else{
-                                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                            DatabaseReference myRef = database.getReference().child("users");
-                                            myRef.setValue(email);
-                                        }
+
 
 
                                     Intent intent=new Intent(getActivity(),ChatActivity.class);
