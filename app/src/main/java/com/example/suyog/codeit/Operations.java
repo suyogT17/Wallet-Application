@@ -32,99 +32,146 @@ public class Operations {
     final static String email = mAuth.getCurrentUser().getEmail();
     public static String doOperations(ai.api.model.Result result) {
         String message = result.getFulfillment().getSpeech().trim();
+        Connection con = Database.connect();
         if(message.contains("balance")){
-            Connection con = Database.connect();
+
             String balance = WalletOperation.getBalance(con,email);
             String amount=null;
-            HashMap<String, JsonElement> resultParameters = result.getParameters();
-            for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
-                String key = entry.getKey();
-                JsonElement value = entry.getValue();
-                if(key.equals("amount")){
-                    amount = value.toString();
-                }
-
+            amount=WalletOperation.getBalance(con,email);
+            Log.i("codeit:","amount:"+amount);
+            if(amount != null) {
+                message = "Wallet Balance: " + amount;
+            }
+            else{
+                message="Sorry Unable to fetch Balance";
             }
 
-            //message=message.replace(amount,balance);//get the balance into total from db
-            message = message+balance;
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
             return message;
         }
-        else if(message.contains("transaction")) {
+        else if(message.contains("transactions")) {
             String date=null;
-
+            Log.i("codeit: ","history1");
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
                 if (key.equals("date")) {
-                    date=value.toString(); //you will get either date or startdate/enddate format according to that find transactions
-                    date=convertToString(date);//and set them in dummy transactions
-                }
-                String data="";
-                try {
-                    ResultSet rs = WalletOperation.transactionByDate(Database.connect(), date);
-                    while (rs.next()) {
-                        data = data + rs.getString("sender_id") + " " + rs.getString("reciever_id") + "\n";
+                    date = value.toString(); //you will get either date or startdate/enddate format according to that find transactions
+                    date = convertToString(date);//and set them in dummy transactions
+                    Log.i("codeit:","date: "+date);
+                    String data = "";
+                    try {
+                        ResultSet rs = WalletOperation.transactionByDate(Database.connect(), date);
+                        if (rs != null) {
+                            while (rs.next()) {
+                                data = data + "Transaction id: " + rs.getInt("transact_id") + "\n" + "Sender: " + WalletOperation.getNameById(Integer.parseInt(rs.getString("sender_id")),con) + "\n" + "Receiver: " +
+                                        WalletOperation.getNameById(Integer.parseInt(rs.getString("reciever_id")),con) + "\n" + "Amount: " + rs.getInt("amount") + "\n\n";
+                            }
+                            message=message+"\n"+data;
+                        }
+                        else {
+                            data = "no transaction for " + date;
+                            message=message+"\n"+data;
+                        }
+                    } catch (SQLException sqle) {
+                        Log.e("DB error", sqle.toString());
                     }
                 }
-                catch(SQLException sqle){
-                    Log.e("DB error",sqle.toString());
+                else{
+                    message="Sorry Unable to fetch Transactions";
                 }
                 ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-                message = message + "\n" + data;
                 return message;
             }
         }
         else if(message.contains("transaction history")){
             String date=null;
-            String data=null;
-
+            String data="\n";
+            Log.i("codeit: ","history");
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
+                Log.i("codeit: ",key);
                 if (key.equals("period")) {
-                    date=value.toString(); //you will get either date or startdate/enddate format according to that find transactions
-                    date=convertToString(date);
-                    String dates[]=date.split("/"); //and set them in dummy transactions
-                    String start=dates[0];//start date
-                    String end =dates[1];//end date
-                    Log.i("codeit:",start+" "+end);
-                    data=""+start+" "+end;//for testing
+                    date = value.toString();
+                    date = convertToString(date);
+                    String dates[] = date.split("/");
+                    String start = dates[0];
+                    String end = dates[1];
+                    Log.i("codeit:", start + " " + end);
+                    try {
+                        ResultSet rs = WalletOperation.transactionByRange(Database.connect(), start, end);
+                        if (rs != null) {
+                            while (rs.next()) {
+                                data = data + "Transaction id: " + rs.getInt("transact_id") + "\n" + "Sender: " + WalletOperation.getNameById(Integer.parseInt(rs.getString("sender_id")), con) + "\n" + "Receiver: " +
+                                        WalletOperation.getNameById(Integer.parseInt(rs.getString("reciever_id")), con) + "\n" + "Amount: " + rs.getInt("amount") +"\n"+"Date: " + rs.getDate("tdate") + "\n\n";
+
+                            }
+                            message = message + "\n" + data;
+                        } else {
+                            message = "no transaction from " + start + " to " + end;
+
+                        }
+                    } catch (SQLException sqle) {
+                        Log.e("DB error", sqle.toString());
+                    }
+
+                } else {
+                    message = "Sorry unable to fetch Transactions";
                 }
 
                 ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-                message = message + "\n" + data;
+
                 return message;
+                 }
             }
 
 
 
 
-        }
+
         else if(message.contains("transfer") | message.contains("pay")){
 
-            int total=5000;
-            String amount=null;
+            int newamount=0;
+            String name=null,amount=null;
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
                 if(key.equals("amount")){
                     amount = value.toString();
-                    int newamount=Integer.parseInt(convertToString(amount));//this is the amount that needs to transfer minus this from total
-                    total = total - newamount;
-                    message=message+"\n Wallet Balance: "+total;
+                    amount=convertToString(amount);//this is the amount that needs to transfer minus this from total
+
 
                 }
                 if(key.equals("name")){
-                    String name=value.toString();
-                    convertToString(name);  //name of the user if there are 2 then handle condition and print log only
+                    name=value.toString();
+                    name=convertToString(name);  //name of the user if there are 2 then handle condition and print log only
                 }
-
             }
+
+            if(amount != null && name != null){
+                newamount=Integer.parseInt(amount);
+                if(WalletOperation.isUserExist(name,con)){
+                    if(Integer.parseInt(WalletOperation.getBalance(con,email)) > newamount){
+                        if(WalletOperation.transferBalance(con,name,newamount)){
+                            message="Transaction Successful.\n"+"Updated Balance: "+WalletOperation.getBalance(con,email);
+                        }
+                        else{
+                            message="Sorry Transaction Unsuccessful!";
+                        }
+                    }
+                    else{
+                        message ="Sorry you dont have sufficeint balance";
+                    }
+                }
+                else{
+                    message="No Such user";
+                }
+            }
+
 
 
             ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
@@ -133,23 +180,48 @@ public class Operations {
 
         }
         else if(message.contains("spend")){
-            String dummyTransactions = "khdskdskjdsk\nksjkdjd\nksjdkdjsddksj\nksjddsjdk";
+            String data="\n";
             String username=null;
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
-                if(key.equals("username")){
+                if (key.equals("username")) {
 
-                  username=value.toString(); // you have to calculate amount spend on this username set that in dummy transaction
+                    username = value.toString();
+                    username = convertToString(username);
+                    try {
+                        ResultSet rs = WalletOperation.transactionByReceiver(Database.connect(), username);
+                        if (rs != null && WalletOperation.isUserExist(username,con)) {
+                            while (rs.next()) {
+                                data = data + "Transaction id: " + rs.getInt("transact_id") + "\n" + "Sender: " + WalletOperation.getNameById(Integer.parseInt(rs.getString("sender_id")), con) + "\n" + "Receiver: " +
+                                        WalletOperation.getNameById(Integer.parseInt(rs.getString("reciever_id")), con) + "\n" + "Amount: " + rs.getInt("amount") + "\n" + "Date: " + rs.getDate("tdate") + "\n\n";
 
+                            }
+                            if(data != ""){
+                            message = message + "\n" + data;
+                            }
+                            else{
+                            message = message +"\n"+"No Transactions With this User ";
+                            }
+                        } else {
+                            message = "No Such User";
+
+                        }
+                    } catch (SQLException sqle) {
+                        Log.e("DB error", sqle.toString());
+                    }
+
+
+                } else {
+                    message = "Sorry Unable to fetch Transactions";
                 }
 
+
+                ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                return message;
+
             }
-
-            ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-            return message+"\n"+dummyTransactions;
-
         }
         else if(message.contains("add")){
             String email=null;
@@ -179,16 +251,25 @@ public class Operations {
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
-                if(key.equals("money")){
+                if (key.equals("money")) {
 
-                    amtDeposit=value.toString();//fname of user
-                    convertToString(amtDeposit);//amoutnwant to deposit
+                    amtDeposit = value.toString();//fname of user
+                    amtDeposit = convertToString(amtDeposit);//amoutnwant to deposit
+                    int oldamt=Integer.parseInt(WalletOperation.getBalance(con,email));
+                    int newamt=oldamt+Integer.parseInt(amtDeposit);
+                    if (WalletOperation.updateBalance(con, email, newamt)) {
+                        message = "Wallet Balance Updated \n New Wallet Balance: " + WalletOperation.getBalance(con, email);
+                    } else {
+                        message = "Sorry Unable update wallet Balance!!!";
+                    }
+
                 }
 
+
+
+                ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                return message;
             }
-            message=message+totalWalletStat;
-            ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-            return message;
         }
         else{
 

@@ -56,10 +56,10 @@ public class CustomAdapter extends BaseAdapter {
 
             BubbleTextView text_message = (BubbleTextView)view.findViewById(R.id.text_message);
             String s="";
-            for(ChatModel cm:list_chat_models){
-                s=s+","+cm.getMessage()+"\n";
-            }
-            Log.i("codeit:",s);
+//            for(ChatModel cm:list_chat_models){
+//                s=s+","+cm.getMessage()+"\n";
+//            }
+           // Log.i("codeit:",s);
             text_message.setText(list_chat_models.get(position).message);
 
         }
