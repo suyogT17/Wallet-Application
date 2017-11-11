@@ -10,11 +10,15 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class WalletOperation {
 
+
+
     private static final String db = "heroku_5d7c12607dfcfbb";
+
     public static String getBalance(Connection con,String email) {
         PreparedStatement query;
         String amount = null;
         ResultSet rs = null;
+
         //String db = "heroku_5d7c12607dfcfbb";
         try {
             query = con.prepareStatement("Select wallet_balance from " + db + ".user where fb_key = ?");
@@ -115,6 +119,8 @@ public class WalletOperation {
             PreparedStatement stmt=con.prepareStatement("Update "+db+".user set wallet_balance = ? where fb_key = ?");
             stmt.setInt(1,amount);
             stmt.setString(2,email);
+            Log.i("codeit: ",stmt.toString());
+
             if(stmt.executeUpdate() > 0){
                 return true;
             }
@@ -136,6 +142,8 @@ public class WalletOperation {
             stmt.setInt(1,sid);
             stmt.setInt(2,rid);
             stmt.setInt(3,amount);
+            Log.i("codeit: ",stmt.toString());
+
             int res=stmt.executeUpdate();
             if(res == 1){
                 FirebaseAuth auth=FirebaseAuth.getInstance();
@@ -166,9 +174,11 @@ public class WalletOperation {
             try {
                 PreparedStatement stmt = conn.prepareStatement("select name from " + db + ".user where fb_key = ? ");
                 stmt.setString(1,password);
+                Log.i("codeit: ",stmt.toString());
+
                 ResultSet rs= stmt.executeQuery();
                 rs.next();
-                Log.i("codeit:",rs.getString("name"));
+                //Log.i("codeit:",rs.getString("name"));
                 return rs.getString("name");
             }
             catch (SQLException sqle){
@@ -183,6 +193,8 @@ public class WalletOperation {
         try {
             PreparedStatement stmt = conn.prepareStatement("select name from " + db + ".user where id = ? ");
             stmt.setInt(1, id);
+            Log.i("codeit: ",stmt.toString());
+
             ResultSet rs=stmt.executeQuery();
             rs.next();
             return rs.getString("name");
@@ -199,6 +211,8 @@ public class WalletOperation {
         try {
             PreparedStatement stmt = conn.prepareStatement("select id from " + db + ".user where name = ? ");
             stmt.setString(1, name);
+            Log.i("codeit: ",stmt.toString());
+
             ResultSet rs=stmt.executeQuery();
             rs.next();
             return rs.getInt("id");

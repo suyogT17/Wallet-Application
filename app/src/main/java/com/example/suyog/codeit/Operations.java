@@ -29,12 +29,14 @@ import static java.lang.String.valueOf;
 public class Operations {
 
     final static FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    final static String email = mAuth.getCurrentUser().getEmail();
+
     public static String doOperations(ai.api.model.Result result) {
         String message = result.getFulfillment().getSpeech().trim();
         Connection con = Database.connect();
         if(message.contains("balance")){
 
+            FirebaseAuth mAuth=FirebaseAuth.getInstance();
+            String email=mAuth.getCurrentUser().getEmail();
             String balance = WalletOperation.getBalance(con,email);
             String amount=null;
             amount=WalletOperation.getBalance(con,email);
@@ -51,6 +53,7 @@ public class Operations {
         }
         else if(message.contains("transactions")) {
             String date=null;
+            String data = "";
             Log.i("codeit: ","history1");
             HashMap<String, JsonElement> resultParameters = result.getParameters();
             for (Map.Entry<String, JsonElement> entry : resultParameters.entrySet()) {
@@ -60,7 +63,7 @@ public class Operations {
                     date = value.toString(); //you will get either date or startdate/enddate format according to that find transactions
                     date = convertToString(date);//and set them in dummy transactions
                     Log.i("codeit:","date: "+date);
-                    String data = "";
+
                     try {
                         ResultSet rs = WalletOperation.transactionByDate(Database.connect(), date);
                         if (rs != null) {
@@ -68,7 +71,7 @@ public class Operations {
                                 data = data + "Transaction id: " + rs.getInt("transact_id") + "\n" + "Sender: " + WalletOperation.getNameById(Integer.parseInt(rs.getString("sender_id")),con) + "\n" + "Receiver: " +
                                         WalletOperation.getNameById(Integer.parseInt(rs.getString("reciever_id")),con) + "\n" + "Amount: " + rs.getInt("amount") + "\n\n";
                             }
-                            message=message+"\n"+data;
+
                         }
                         else {
                             data = "no transaction for " + date;
@@ -81,7 +84,15 @@ public class Operations {
                 else{
                     message="Sorry Unable to fetch Transactions";
                 }
-                ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+
+                if(data != null | data != ""){
+                    ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                    message=message+"\n"+data;
+                }
+                else{
+                    ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                }
+
                 return message;
             }
         }
@@ -109,7 +120,7 @@ public class Operations {
                                         WalletOperation.getNameById(Integer.parseInt(rs.getString("reciever_id")), con) + "\n" + "Amount: " + rs.getInt("amount") +"\n"+"Date: " + rs.getDate("tdate") + "\n\n";
 
                             }
-                            message = message + "\n" + data;
+
                         } else {
                             message = "no transaction from " + start + " to " + end;
 
@@ -122,7 +133,14 @@ public class Operations {
                     message = "Sorry unable to fetch Transactions";
                 }
 
-                ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                if(data != null | data != ""){
+                    ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                    message=message+"\n"+data;
+                }
+                else{
+                    ChatActivity.t1.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                }
+
 
                 return message;
                  }
@@ -134,6 +152,8 @@ public class Operations {
 
         else if(message.contains("transfer") | message.contains("pay")){
 
+            FirebaseAuth mAuth=FirebaseAuth.getInstance();
+            String email=mAuth.getCurrentUser().getEmail();
             int newamount=0;
             String name=null,amount=null;
             HashMap<String, JsonElement> resultParameters = result.getParameters();
@@ -245,6 +265,8 @@ public class Operations {
 
         else if(message.contains("credited") | message.contains("deposited")){
 
+            FirebaseAuth mAuth=FirebaseAuth.getInstance();
+            String email=mAuth.getCurrentUser().getEmail();
             String amtDeposit = null;
             String totalWalletStat=null;//store total + amtDeposit
             HashMap<String, JsonElement> resultParameters = result.getParameters();
