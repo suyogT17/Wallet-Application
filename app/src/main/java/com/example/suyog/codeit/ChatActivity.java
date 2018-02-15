@@ -8,6 +8,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -46,7 +51,7 @@ import ai.api.model.Result;
 import ai.api.model.Status;
 import ai.api.ui.AIButton;
 
-public class ChatActivity extends AppCompatActivity  {
+public class ChatActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     ListView mListView;
     EditText mEditText;
@@ -68,15 +73,43 @@ public class ChatActivity extends AppCompatActivity  {
 //            ProgressDialog progressDialog = null;
 //            progressDialog.setMessage("Signing Out");
             FirebaseAuth auth=FirebaseAuth.getInstance();
-            auth.signOut();
-            finish();
-            Intent intent=new Intent(this ,AuthenticationActivity.class);
-            startActivity(intent);
 
-        }
+            auth.signOut();
+
+            /*
+            code for logout
+
+            LoginFragment.mGoogleApiClient.disconnect();
+            LoginFragment loginFragment=LoginFragment.getInstance();
+            loginFragment.signOut();
+
+            */
+            Intent intent=new Intent(this,AuthenticationActivity.class);
+            this.finish();
+            this.startActivity(intent);
+
+
+            }
+
+
+
+
+
+
+
+
+
+        //}
         return super.onOptionsItemSelected(item);
 
 
+    }
+
+    private void goToLogin() {
+
+        Intent intent=new Intent(this ,AuthenticationActivity.class);
+        finish();
+        startActivity(intent);
     }
 
     @Override
@@ -227,5 +260,10 @@ public class ChatActivity extends AppCompatActivity  {
 
     }
 
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }
 
