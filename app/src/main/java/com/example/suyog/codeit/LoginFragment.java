@@ -4,11 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +26,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class LoginFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener {
@@ -70,7 +78,7 @@ private Button test;
         //oauth
         mSignInButton=(SignInButton) view.findViewById(R.id.sign_in_button);
         test=(Button) view. findViewById(R.id.test);
-        googleSignInOptions=new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleSignInOptions=new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().requestScopes(new Scope("https://www.googleapis.com/auth/calendar.readonly")).build();
         mGoogleApiClient=new GoogleApiClient.Builder(getContext()).enableAutoManage(getActivity(),this).addApi(Auth.GOOGLE_SIGN_IN_API,googleSignInOptions).build();
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +163,7 @@ private Button test;
     private void signIn(){
 
         Intent intent=Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+
         startActivityForResult(intent,REQ_CODE);
     }
 
@@ -172,6 +181,7 @@ private Button test;
                 }
             }
         });
+
     }
 
     //oauth for going back to login
@@ -185,16 +195,25 @@ private Button test;
     //oauth
     private void handleResult(GoogleSignInResult googleSignInResult){
 
-        if(googleSignInResult.isSuccess()){
+        if(googleSignInResult.isSuccess())
+        {
+            Log.i("Success","YES");
             GoogleSignInAccount account=googleSignInResult.getSignInAccount();
             name=account.getDisplayName();
             email=account.getEmail();
+            String token = account.getIdToken();
             //stop
+
+
             Intent intent=new Intent(getActivity(), ChatActivity.class);
+            intent.putExtra("singedInAccount", account);
+
             getActivity().startActivity(intent);
             Toast.makeText(getActivity(),"Login Success name"+name,Toast.LENGTH_LONG).show();
             getActivity().finish();
         }
+        else
+            Log.i("Fail",String.valueOf(googleSignInResult.getStatus()));
 
     }
 
@@ -202,9 +221,16 @@ private Button test;
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQ_CODE){
+        Log.i("INTENT_RESULT","returned Intent ");
+        if(requestCode == REQ_CODE)
+        {
+            Log.i("INTENT_Code","Right Code ");
             GoogleSignInResult googleSignInResult=Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleResult(googleSignInResult);
         }
     }
+
+
+
+
 }

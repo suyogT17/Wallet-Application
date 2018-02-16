@@ -26,14 +26,27 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
+
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,11 +72,18 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     ImageButton mSendbtn;
     ImageButton mRecord;
     public static TextToSpeech t1;
-
+    private GoogleApiClient mGoogleApiClient;
     private Gson gson = GsonFactory.getDefaultFactory().getGson();
     public static final String TAG="codeit";
     SpeechRecognizer mSpeechRecognizer;
     AIDataService aiDataService=null;
+    GoogleSignInAccount account;
+    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+
+
+    GoogleAccountCredential mCredential;
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -91,14 +111,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
             }
 
-
-
-
-
-
-
-
-
         //}
         return super.onOptionsItemSelected(item);
 
@@ -125,8 +137,11 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        mGoogleApiClient = LoginFragment.mGoogleApiClient;
 
+        Log.i("Check", String.valueOf(mGoogleApiClient.isConnected()));
 
+        account =getIntent().getParcelableExtra("singedInAccount");
 
         mRecord = (ImageButton) findViewById(R.id.micButton);
         mListView = (ListView)findViewById(R.id.list_of_message);
@@ -145,6 +160,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
                 if(status != TextToSpeech.ERROR) {
                     t1.setLanguage(Locale.UK);
                 }
+
             }
         });
 
@@ -175,6 +191,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
             @Override
             public void onClick(View v) {
                 String text = mEditText.getText().toString();
+
                 if(TextUtils.isEmpty(text)){
                     Toast.makeText(ChatActivity.this, "Enter Your Text", Toast.LENGTH_SHORT).show();
                 }
@@ -191,6 +208,16 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
                 }
             }
         });
+
+
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
+        Log.i("Old", String.valueOf(mCredential.getSelectedAccount()));
+        mCredential.setSelectedAccountName(account.getEmail());
+        Log.i("Old", String.valueOf(mCredential.getSelectedAccount()));
+        Log.i("email", String.valueOf(account.getEmail()));
+        new MakeRequestTask(mCredential).execute();
     }
 
     @Override
@@ -265,5 +292,95 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Exception mLastError = null;
+
+        MakeRequestTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }
+
+        /**
+         * Background task to call Google Calendar API.
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected List<String> doInBackground(Void... params) {
+            try {
+                return getDataFromApi();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        /**
+         * Fetch a list of the next 10 events from the primary calendar.
+         * @return List of Strings describing returned events.
+         * @throws IOException
+         */
+        private List<String> getDataFromApi() throws IOException {
+            // List the next 10 events from the primary calendar.
+            DateTime now = new DateTime(System.currentTimeMillis());
+            List<String> eventStrings = new ArrayList<String>();
+            Events events = mService.events().list("primary")
+                    .setMaxResults(10)
+
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            List<Event> items = events.getItems();
+
+            for (Event event : items) {
+                DateTime start = event.getStart().getDateTime();
+                if (start == null) {
+                    // All-day events don't have start times, so just use
+                    // the start date.
+                    start = event.getStart().getDate();
+                }
+                eventStrings.add(
+                        String.format("%s (%s)", event.getSummary(), start));
+            }
+            return eventStrings;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Async","Pre");
+        }
+
+        @Override
+        protected void onPostExecute(List<String> output) {
+            Log.i("Async","Post");
+            if (output == null) {
+                Log.i("result","No results returned.");
+            } else {
+                output.add(0, "Data retrieved using the Google Calendar API:");
+                Log.i("result",output.toString());
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+
+            if (mLastError != null) {
+                Log.i("CAN","The following error occurred:\n"+mLastError.getMessage());
+                }
+             else {
+                Log.i("CAN","Request cancelled.");
+            }
+        }
+    }
+
+
+
 }
 
