@@ -41,6 +41,9 @@ import java.util.List;
 
 public class LoginFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener {
 
+
+    private View emailview;
+    private View passview;
     private EditText mLoginEmail;
     private EditText mLoginPassword;
     private Button mLoginbtn;
@@ -74,6 +77,15 @@ private Button test;
         mRegister=(Button) view.findViewById(R.id.linksignup);
         mAuth = FirebaseAuth.getInstance();
         mProgressDialog= new ProgressDialog(getActivity());
+        emailview=(View) view.findViewById(R.id.emailview);
+        passview=(View) view.findViewById(R.id.passview);
+
+        mLoginEmail.setVisibility(View.INVISIBLE);
+        mLoginPassword.setVisibility(View.INVISIBLE);
+        mLoginbtn.setVisibility(View.INVISIBLE);
+        mRegister.setVisibility(View.INVISIBLE);
+        emailview.setVisibility(View.INVISIBLE);
+        passview.setVisibility(View.INVISIBLE);
 
         //oauth
         mSignInButton=(SignInButton) view.findViewById(R.id.sign_in_button);

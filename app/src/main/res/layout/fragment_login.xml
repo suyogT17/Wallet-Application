@@ -27,6 +27,34 @@
                 android:layout_marginBottom="18dp"
                 android:src="@drawable/walletlogo"/>
 
+
+            <com.google.android.gms.common.SignInButton
+
+                android:id="@+id/sign_in_button"
+                style="@style/Base.TextAppearance.AppCompat.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:textSize="16dp" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FF1744"
+                android:id="@+id/test"
+                android:text="logout"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:padding="16dp"
+
+                android:textSize="16dp"
+                android:shadowColor="@color/colorAccent"
+                style="@style/Base.TextAppearance.AppCompat.Body1"
+                android:layout_marginTop="20dp"/>
+
+
+
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,6 +72,7 @@
                 />
 
             <View
+                android:id="@+id/emailview"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#004D40"/>
@@ -63,16 +92,17 @@
                 android:drawableLeft="@drawable/ic_lock_white_24dp"/>
 
             <View
+                android:id="@+id/passview"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#004D40"/>
 
-            <CheckBox
+            <!--<CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textColor="#000000"
-                android:text="Remember me" />
+                android:text="Remember me" />-->
 
             <Button
                 android:layout_width="match_parent"
@@ -94,30 +124,6 @@
                 android:background="#FF1744"
                 android:id="@+id/linksignup"
                 android:text="SIGN UP"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:padding="16dp"
-
-                android:textSize="16dp"
-                android:shadowColor="@color/colorAccent"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_marginTop="20dp"/>
-
-            <com.google.android.gms.common.SignInButton
-
-                android:id="@+id/sign_in_button"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textSize="16dp" />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FF1744"
-                android:id="@+id/test"
-                android:text="logout"
                 android:textColor="#FFFFFF"
                 android:textAllCaps="false"
                 android:padding="16dp"

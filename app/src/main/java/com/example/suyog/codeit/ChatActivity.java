@@ -147,7 +147,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         mListView = (ListView)findViewById(R.id.list_of_message);
         mEditText = (EditText)findViewById(R.id.user_message);
         mSendbtn = (ImageButton)findViewById(R.id.fab);
-        showWelcomeMessage();
 
         final AIConfiguration config = new AIConfiguration("d402c697427b47769a6568402acf5b46",
                 AIConfiguration.SupportedLanguages.English,
@@ -274,10 +273,24 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
 
-    void showWelcomeMessage(){
-        FirebaseAuth auth=FirebaseAuth.getInstance();
-        String welcomeText="Hii,"+" i am your wallet Assistant \n I can do following things for you \n show balance " +
-                "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
+    void showWelcomeMessage(List<String> messages){
+        //FirebaseAuth auth=FirebaseAuth.getInstance();
+        //String welcomeText="Hii,"+" i am your wallet Assistant \n I can do following things for you \n show balance " +
+        //        "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
+
+        String welcomeText="Events Retrived Using Calenter API:"+"\n\n";
+        int i=0;
+        if(messages.size()==1){
+            welcomeText=welcomeText+messages.get(0);
+        }
+        else {
+            for (String message : messages) {
+                i++;
+                int lastpos = message.lastIndexOf("(");
+                message = message.substring(0, lastpos);
+                welcomeText = welcomeText + i + ". " + message + "\n";
+            }
+        }
         ChatModel model1 = new ChatModel(welcomeText, false); // user send message
 
             list_chat.add(model1);
@@ -360,11 +373,15 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         @Override
         protected void onPostExecute(List<String> output) {
             Log.i("Async","Post");
-            if (output == null) {
-                Log.i("result","No results returned.");
+            if (output == null | output.isEmpty()) {
+                output.add(0, "No data for you ");
+                showWelcomeMessage(output);
+
+                Log.i("result: ","No results returned.");
             } else {
-                output.add(0, "Data retrieved using the Google Calendar API:");
-                Log.i("result",output.toString());
+                Log.i("result: ",output.toString());
+                showWelcomeMessage(output);
+
             }
         }
 
