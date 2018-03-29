@@ -10,9 +10,9 @@ public class Database {
 
     private static final String url = "jdbc:mysql://us-cdbr-iron-east-05.cleardb.net:3306/heroku_5d7c12607dfcfbb";
 
-    private static final String user = "b818910713d941";
+    private static final String user = "USER_NAME";
 
-    private static final String password = "345cb207";
+    private static final String password = "PASSWORD";
 
 
 
