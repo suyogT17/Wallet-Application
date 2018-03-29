@@ -28,31 +28,6 @@
                 android:src="@drawable/walletlogo"/>
 
 
-            <com.google.android.gms.common.SignInButton
-
-                android:id="@+id/sign_in_button"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textSize="16dp" />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FF1744"
-                android:id="@+id/test"
-                android:text="logout"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:padding="16dp"
-
-                android:textSize="16dp"
-                android:shadowColor="@color/colorAccent"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_marginTop="20dp"/>
-
-
 
 
             <EditText

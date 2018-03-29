@@ -137,11 +137,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mGoogleApiClient = LoginFragment.mGoogleApiClient;
-
-        Log.i("Check", String.valueOf(mGoogleApiClient.isConnected()));
-
-        account =getIntent().getParcelableExtra("singedInAccount");
 
         mRecord = (ImageButton) findViewById(R.id.micButton);
         mListView = (ListView)findViewById(R.id.list_of_message);
@@ -209,14 +204,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         });
 
 
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
-        Log.i("Old", String.valueOf(mCredential.getSelectedAccount()));
-        mCredential.setSelectedAccountName(account.getEmail());
-        Log.i("Old", String.valueOf(mCredential.getSelectedAccount()));
-        Log.i("email", String.valueOf(account.getEmail()));
-        new MakeRequestTask(mCredential).execute();
     }
 
     @Override
@@ -274,23 +261,10 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
 
     void showWelcomeMessage(List<String> messages){
-        //FirebaseAuth auth=FirebaseAuth.getInstance();
-        //String welcomeText="Hii,"+" i am your wallet Assistant \n I can do following things for you \n show balance " +
-        //        "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
+        FirebaseAuth auth=FirebaseAuth.getInstance();
+        String welcomeText="Hii,"+" i am your wallet Assistant \n I can do following things for you \n show balance " +
+                "\n show transaction history \n add contact \n funds transfer history \n Payment or transfer money";
 
-        String welcomeText="Events Retrived Using Calenter API:"+"\n\n";
-        int i=0;
-        if(messages.size()==1){
-            welcomeText=welcomeText+messages.get(0);
-        }
-        else {
-            for (String message : messages) {
-                i++;
-                int lastpos = message.lastIndexOf("(");
-                message = message.substring(0, lastpos);
-                welcomeText = welcomeText + i + ". " + message + "\n";
-            }
-        }
         ChatModel model1 = new ChatModel(welcomeText, false); // user send message
 
             list_chat.add(model1);
@@ -306,96 +280,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
-        private com.google.api.services.calendar.Calendar mService = null;
-        private Exception mLastError = null;
-
-        MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
-                    .build();
-        }
-
-        /**
-         * Background task to call Google Calendar API.
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected List<String> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        /**
-         * Fetch a list of the next 10 events from the primary calendar.
-         * @return List of Strings describing returned events.
-         * @throws IOException
-         */
-        private List<String> getDataFromApi() throws IOException {
-            // List the next 10 events from the primary calendar.
-            DateTime now = new DateTime(System.currentTimeMillis());
-            List<String> eventStrings = new ArrayList<String>();
-            Events events = mService.events().list("primary")
-                    .setMaxResults(10)
-
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            List<Event> items = events.getItems();
-
-            for (Event event : items) {
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-                    // All-day events don't have start times, so just use
-                    // the start date.
-                    start = event.getStart().getDate();
-                }
-                eventStrings.add(
-                        String.format("%s (%s)", event.getSummary(), start));
-            }
-            return eventStrings;
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-            Log.i("Async","Pre");
-        }
-
-        @Override
-        protected void onPostExecute(List<String> output) {
-            Log.i("Async","Post");
-            if (output == null | output.isEmpty()) {
-                output.add(0, "No data for you ");
-                showWelcomeMessage(output);
-
-                Log.i("result: ","No results returned.");
-            } else {
-                Log.i("result: ",output.toString());
-                showWelcomeMessage(output);
-
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-
-            if (mLastError != null) {
-                Log.i("CAN","The following error occurred:\n"+mLastError.getMessage());
-                }
-             else {
-                Log.i("CAN","Request cancelled.");
-            }
-        }
-    }
 
 
 

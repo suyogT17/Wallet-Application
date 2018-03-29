@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://D:\Wallet-Application\CodeIT.iml" filepath="D:\Wallet-Application\CodeIT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CodeIT.iml" filepath="$PROJECT_DIR$/CodeIT.iml" />
+      <module fileurl="file://D:/Wallet-Application/CodeIT.iml" filepath="D:/Wallet-Application/CodeIT.iml" />
       <module fileurl="file://$PROJECT_DIR$/Wallet-Application.iml" filepath="$PROJECT_DIR$/Wallet-Application.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
