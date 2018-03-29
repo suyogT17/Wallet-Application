@@ -43,11 +43,12 @@ w balance
  
 #### Show Transaction History By Date 
  ![Transaction By Date](/screenshots/transactionsbydate.jpeg)
+ 
 #### Show Transaction History Specific to user 
  ![Transaction By User](/screenshots/userspecifichistory.jpeg)
  
 #### Transfer Money
- ![Transfer Money](/screenshots/.jpeg)
+ ![Transfer Money](/screenshots/transfer.jpeg)
  
 #### FAQ
  ![FAQ](/screenshots/FAQ.jpeg)
